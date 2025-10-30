@@ -3,6 +3,7 @@
 
 <head>
   <link rel="stylesheet" href="style.css">
+  <script src="script.js"></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Моя перша (або ні) сторінка</title>
@@ -11,8 +12,120 @@
 <body>
   <h1>Вітаю у світі WWW!</h1>
   <p>Це мій перший абзац тексту (або ні).</p>
-  <img src="images.png" alt="images">
+  <img src="images/images.png" alt="images">
+  <button type="button" id="theme-switch" onclick="toggleDarkMode()">
+    <img src="images/moon.png" alt="moon" id="theme-icon-dark">
+    <img src="images/sun.png" alt="sun" id="theme-icon-light">
+  </button>
   <br>
   <a href="https://example.com">Посилання</a>
 </body>
 </html>
+
+
+<!-- Привітання -->
+<form id="greating-form" onsubmit="return false;" >
+  <label for="user-name" style="margin-bottom: 8px;">Введіть ваше ім’я:</label>
+  <input type="text" id="user-name" autocomplete="off">
+</form>
+<div id="greeting-container"></div>
+<script>
+  function handleNameInput(event) {
+    const greetingDiv = document.getElementById('greeting-container');
+    const name = event.target.value.trim();
+    if (name === "") {
+      greetingDiv.textContent = "";
+    } else {
+      greetingDiv.textContent = `Вітаємо, ${name}!`;
+    }
+  }
+
+  document.getElementById('user-name').addEventListener('input', handleNameInput);
+</script>
+
+<!-- Динамічне завантаження контенту -->
+<div id="dynamic-content-container"></div>
+<button id="load-data-btn">Завантажити дані</button>
+<script>
+  document.getElementById('load-data-btn').addEventListener('click', async function() {
+    const container = document.getElementById('dynamic-content-container');
+    container.innerHTML = "Завантаження...";
+    try {
+      const response = await fetch('https://web2025-test-data.ikto.net/traveler-greeting.html');
+      if (!response.ok) throw new Error("Network response was not ok");
+      const data = await response.text();
+      container.innerHTML = data;
+    } catch (e) {
+      container.innerHTML = "Не вдалося завантажити дані";
+    }
+  });
+</script>
+
+<!-- Коментарі -->
+<div id="comments-container"></div>
+<form id="comment-form">
+  <h2 style="text-align:center;">Коментарі</h2>
+  <input type="text" id="comment-name" placeholder="Ваше ім'я" required>
+  <textarea id="comment-text" placeholder="Ваш коментар" required></textarea>
+  <button type="submit" id="comment-button">Додати</button>
+</form>
+<ul id="comments-list"></ul>
+<script>
+  const commentForm = document.getElementById('comment-form');
+  const commentName = document.getElementById('comment-name');
+  const commentText = document.getElementById('comment-text');
+  const commentsList = document.getElementById('comments-list');
+
+  commentForm.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const nameValue = commentName.value.trim();
+    const commentValue = commentText.value.trim();
+    if (nameValue === "" || commentValue === "") return;
+
+    const li = document.createElement('li');
+
+    const nameElem = document.createElement('strong');
+    nameElem.textContent = nameValue;
+    li.appendChild(nameElem);
+
+    const commentElem = document.createElement('p');
+    commentElem.textContent = commentValue;
+    commentElem.style.margin = "6px 0 0 0";
+    li.appendChild(commentElem);
+
+    commentsList.appendChild(li);
+
+    commentName.value = "";
+    commentText.value = "";
+  });
+</script>
+
+<!-- Динамічне завантаження структурованих даних -->
+<div id="schedule-container"></div>
+<button id="load-schedule-btn">Завантажити дані</button>
+<script>
+  const loadButton = document.getElementById('load-schedule-btn');
+  const scheduleContainer = document.getElementById('schedule-container');
+
+  loadButton.addEventListener('click', async function () {
+    scheduleContainer.innerHTML = '';
+    try {
+      const response = await fetch('https://web2025-test-data.ikto.net/schedule.json');
+      if (!response.ok) throw new Error("Network response was not ok");
+      const data = await response.json();
+      if (!Array.isArray(data)) throw new Error("Invalid data format");
+
+      const ul = document.createElement('ul');
+      data.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = Object.entries(item).map(([key, value]) => `${key}: ${value}`).join(', ');
+        ul.appendChild(li);
+      });
+
+      scheduleContainer.appendChild(ul);
+    } catch (e) {
+      scheduleContainer.textContent = "Не вдалося завантажити дані";
+    }
+  });
+</script>
