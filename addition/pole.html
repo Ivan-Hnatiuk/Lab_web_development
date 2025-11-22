@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Форма введення даних користувача</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <h1>Заповніть форму</h1>
+    <form method="post" action="/submit">
+        <label for="name">Ім'я:</label><br>
+        <input type="text" id="name" name="name" required><br><br>
+
+        <label for="email">Електронна адреса:</label><br>
+        <input type="email" id="email" name="email" required><br><br>
+
+        <label for="age">Вік:</label><br>
+        <input type="number" id="age" name="age" min="0" required><br><br>
+
+        <label for="city">Місто:</label><br>
+        <input type="text" id="city" name="city"><br><br>
+
+        <button type="submit">Надіслати</button>
+    </form>
+</body>
+</html>

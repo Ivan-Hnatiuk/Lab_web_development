@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Результати форми</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='form.css') }}">
+</head>
+<body>
+    <div class="result-container">
+        <h1>Результати форми</h1>
+        
+        {% if filename %}
+        <div class="success-message">
+            <h2>✓ Дані успішно збережено!</h2>
+            <p>Ваші дані були збережені у файл: <strong>{{ filename|e }}</strong></p>
+        </div>
+        {% endif %}
+        
+        <div class="result-card">
+            <h2>Введені дані</h2>
+            <table class="result-table">
+                <tr>
+                    <th>Ім'я:</th>
+                    <td>{{ name|e }}</td>
+                </tr>
+                <tr>
+                    <th>Електронна адреса:</th>
+                    <td>{{ email|e }}</td>
+                </tr>
+                <tr>
+                    <th>Вік:</th>
+                    <td>{{ age|e }}</td>
+                </tr>
+                <tr>
+                    <th>Повідомлення:</th>
+                    <td class="message-cell">{{ message|e }}</td>
+                </tr>
+            </table>
+        </div>
+        
+        <a href="{{ url_for('form') }}" class="back-link">Повернутися до форми</a>
+    </div>
+</body>
+</html>
+

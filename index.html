@@ -24,10 +24,10 @@
 
 
 <!-- Привітання -->
-<form id="greating-form" onsubmit="return false;" >
-  <label for="user-name" style="margin-bottom: 8px;">Введіть ваше ім’я:</label>
+<div id="greating-form">
+  <label id="user-name-label" for="user-name">Введіть ваше ім’я:</label>
   <input type="text" id="user-name" autocomplete="off">
-</form>
+</div>
 <div id="greeting-container"></div>
 <script>
   function handleNameInput(event) {
@@ -45,7 +45,7 @@
 
 <!-- Динамічне завантаження контенту -->
 <div id="dynamic-content-container"></div>
-<button id="load-data-btn">Завантажити дані</button>
+<button id="load-data-btn" type="button">Завантажити дані</button>
 <script>
   document.getElementById('load-data-btn').addEventListener('click', async function() {
     const container = document.getElementById('dynamic-content-container');
@@ -64,7 +64,7 @@
 <!-- Коментарі -->
 <div id="comments-container"></div>
 <form id="comment-form">
-  <h2 style="text-align:center;">Коментарі</h2>
+  <h2 id="comments-title">Коментарі</h2>
   <input type="text" id="comment-name" placeholder="Ваше ім'я" required>
   <textarea id="comment-text" placeholder="Ваш коментар" required></textarea>
   <button type="submit" id="comment-button">Додати</button>
@@ -103,7 +103,7 @@
 
 <!-- Динамічне завантаження структурованих даних -->
 <div id="schedule-container"></div>
-<button id="load-schedule-btn">Завантажити дані</button>
+<button id="load-schedule-btn" type="button">Завантажити дані</button>
 <script>
   const loadButton = document.getElementById('load-schedule-btn');
   const scheduleContainer = document.getElementById('schedule-container');

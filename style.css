@@ -10,7 +10,7 @@
 
 .dark-mode {
     --primary-color: gray;
-    --background-color: black;
+    --background-color: #353535;
     --background-variant-color: darkgray;
     --primary-text-color: lightblue;
     --text-color: white ;
@@ -58,6 +58,9 @@ button:hover {
     padding: 8px; 
     border-radius: 4px;
   }
+  #user-name-label {
+    margin-bottom: 8px;
+  }
   #greating-form{
     margin-top: 30px;
     display: flex;
@@ -69,6 +72,9 @@ button:hover {
     font-weight: bold;
   }
 
+#comments-title {
+  text-align: center;
+}
   
   #comments-list{
     list-style-type: none;
