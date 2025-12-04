@@ -1,0 +1,22 @@
+{% extends "base.html.j2" %}
+{% block content %}
+<div class="card">
+    <h2>Підтвердження видалення оцінки</h2>
+    <p class="muted">
+        Ви дійсно бажаєте видалити цю оцінку? Дію неможливо буде скасувати.
+    </p>
+
+    <p>
+        <strong>Студент:</strong> {{ grade.student_name }}<br>
+        <strong>Дисципліна:</strong> {{ grade.course_title }} (семестр {{ grade.semester }})<br>
+        <strong>Оцінка:</strong> {{ grade.value }}
+    </p>
+
+    <form method="post" style="margin-top: 1rem;">
+        <button type="submit" style="background:#b00020;">Так, видалити</button>
+        <a href="{{ url_for('edit_grades_list') }}" style="margin-left: 1rem;">Скасувати</a>
+    </form>
+</div>
+{% endblock %}
+
+

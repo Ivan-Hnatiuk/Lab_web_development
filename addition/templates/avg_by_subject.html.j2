@@ -1,0 +1,38 @@
+{% extends "base.html.j2" %}
+{% block content %}
+<div class="card">
+    <h2>Середній бал по дисциплінах</h2>
+    <p class="muted">
+        Показує середній бал та кількість оцінок для кожної дисципліни.
+    </p>
+</div>
+
+{% if rows %}
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Дисципліна</th>
+            <th>Семестр</th>
+            <th>Середній бал</th>
+            <th>Кількість оцінок</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for row in rows %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ row.course_title }}</td>
+            <td>{{ row.semester }}</td>
+            <td>{{ row.avg_value if row.avg_value is not none else "—" }}</td>
+            <td>{{ row.cnt }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="muted">Немає даних для відображення.</p>
+{% endif %}
+{% endblock %}
+
+

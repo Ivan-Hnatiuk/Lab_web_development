@@ -1,0 +1,33 @@
+{% extends "base.html.j2" %}
+{% block content %}
+<div class="card">
+    <h2>Оцінки студента</h2>
+    <p><strong>Ім'я:</strong> {{ student.name }}</p>
+    <p class="muted"><a href="{{ url_for('students') }}">&larr; Повернутися до списку</a></p>
+</div>
+{% if grades %}
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Дисципліна</th>
+            <th>Семестр</th>
+            <th>Бали</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for grade in grades %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ grade.course_title }}</td>
+            <td>{{ grade.semester }}</td>
+            <td>{{ grade.value }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="muted">Для цього студента ще немає оцінок.</p>
+{% endif %}
+{% endblock %}
+

@@ -1,0 +1,34 @@
+{% extends "base.html.j2" %}
+{% block content %}
+<div class="card">
+    <h2>Всі оцінки студентів</h2>
+    <p class="muted">Список сформовано на основі таблиці <code>points</code>.</p>
+</div>
+{% if grades %}
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Студент</th>
+            <th>Дисципліна</th>
+            <th>Семестр</th>
+            <th>Бали</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for grade in grades %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ grade.student_name }}</td>
+            <td>{{ grade.course_title }}</td>
+            <td>{{ grade.semester }}</td>
+            <td>{{ grade.value }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="muted">Поки що немає жодної оцінки.</p>
+{% endif %}
+{% endblock %}
+

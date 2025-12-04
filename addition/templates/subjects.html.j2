@@ -1,0 +1,30 @@
+{% extends "base.html.j2" %}
+{% block content %}
+<div class="card">
+    <h2>Дисципліни</h2>
+    <p class="muted">Усього дисциплін: {{ subjects|length }}</p>
+</div>
+{% if subjects %}
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Назва</th>
+            <th>Семестр</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for subject in subjects %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ subject.title }}</td>
+            <td>{{ subject.semester }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="muted">У базі немає дисциплін.</p>
+{% endif %}
+{% endblock %}
+

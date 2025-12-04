@@ -1,0 +1,46 @@
+{% extends "base.html.j2" %}
+{% block content %}
+<div class="card">
+    <h2>Рейтинг студентів за дисципліною</h2>
+    <form method="get">
+        <label for="course-id">Оберіть дисципліну:</label>
+        <select id="course-id" name="course_id">
+            <option value="">— Не вибрано —</option>
+            {% for course in courses %}
+            <option value="{{ course.id }}" {% if selected_course and course.id == selected_course.id %}selected{% endif %}>
+                {{ course.title }}
+            </option>
+            {% endfor %}
+        </select>
+        <button type="submit">Показати</button>
+    </form>
+</div>
+
+{% if selected_course %}
+    {% if ratings %}
+    <table>
+        <thead>
+            <tr>
+                <th>Місце</th>
+                <th>Студент</th>
+                <th>Бали</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for row in ratings %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ row.student_name }}</td>
+                <td>{{ row.value }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="muted">Для обраної дисципліни поки що немає оцінок.</p>
+    {% endif %}
+{% else %}
+<p class="muted">Будь ласка, оберіть дисципліну, щоб побачити рейтинг.</p>
+{% endif %}
+{% endblock %}
+

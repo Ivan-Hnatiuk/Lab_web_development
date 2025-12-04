@@ -1,0 +1,46 @@
+{% extends "base.html.j2" %}
+{% block content %}
+<div class="card">
+    <h2>Кількість оцінок за шкалою ECTS по студентах і семестрах</h2>
+    <p class="muted">
+        Для кожного студента по кожному семестру показано, скільки виставлено оцінок кожного рівня ECTS.
+    </p>
+</div>
+
+{% if rows %}
+<table>
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Студент</th>
+            <th>Семестр</th>
+            <th>A</th>
+            <th>B</th>
+            <th>C</th>
+            <th>D</th>
+            <th>E</th>
+            <th>FX</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for row in rows %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ row.student_name }}</td>
+            <td>{{ row.semester }}</td>
+            <td>{{ row.A_cnt }}</td>
+            <td>{{ row.B_cnt }}</td>
+            <td>{{ row.C_cnt }}</td>
+            <td>{{ row.D_cnt }}</td>
+            <td>{{ row.E_cnt }}</td>
+            <td>{{ row.FX_cnt }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="muted">Немає даних для відображення.</p>
+{% endif %}
+{% endblock %}
+
+
