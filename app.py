@@ -35,6 +35,17 @@ app = Flask(
 )
 
 
+@app.after_request
+def apply_csp(response):
+    """
+    Додає CSP-заголовок, який дозволяє завантаження та виконання скриптів
+    з поточного домену та inline-скрипти (необхідно для функціональності index.html).
+    Зовнішні скрипти з інших доменів заборонені.
+    """
+    response.headers["Content-Security-Policy"] = "script-src 'self' 'unsafe-inline'"
+    return response
+
+
 @app.route('/')
 def root_index():
     # Віддаємо існуючий статичний index.html з кореня проєкту
@@ -58,6 +69,11 @@ def images(filename: str):
 
 @app.route("/hello/<name>")
 def hello(name):
+    return render_template("hello.html.j2", name=name)
+
+@app.route("/hello2")
+def hello2():
+    name = request.args.get("name") or "Гість"
     return render_template("hello.html.j2", name=name)
 
 
