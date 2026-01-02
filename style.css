@@ -192,3 +192,98 @@ button:hover {
   background-color: var(--background-color);
   color: var(--text-color);
 }
+
+/* Сторінка входу */
+body.login-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  margin: 0;
+}
+
+.login-container {
+  background-color: var(--background-variant-color);
+  padding: 24px 28px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  min-width: 280px;
+}
+
+.login-container h1 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  text-align: center;
+  color: var(--primary-text-color);
+}
+
+.login-container label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.login-container input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 4px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  border: 1px solid var(--background-variant-color);
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+.login-container button {
+  margin-top: 12px;
+  width: 100%;
+  padding: 8px;
+  border-radius: 4px;
+  border: none;
+  background-color: var(--accent-color);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.login-container button:hover {
+  background-color: #163a75;
+}
+
+.back-link-bar {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+}
+
+.back-link-bar a {
+  text-decoration: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  background-color: var(--background-variant-color);
+  color: var(--text-color);
+  font-size: 14px;
+}
+
+.login-error {
+  color: red;
+  margin-top: 0;
+  text-align: center;
+}
+
+/* Плаваюча кнопка виходу для головної сторінки */
+.logout-floating {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  background-color: #1f4b99;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+.logout-floating:hover {
+  background-color: #163a75;
+}

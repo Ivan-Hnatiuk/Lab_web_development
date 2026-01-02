@@ -1,11 +1,19 @@
 from pathlib import Path
 import sqlite3
+import secrets
+import time
+from functools import wraps
 
-from flask import Flask, abort, redirect, render_template, request, send_from_directory, url_for
+from flask import Flask, abort, g, redirect, render_template, request, send_from_directory, url_for
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Використовуємо шаблони та статичні файли з папки addition
 BASE_DIR = Path(__file__).resolve().parent
 DB_PATH = BASE_DIR / "DBs" / "points.db"
+
+# Сховище сесій у пам'яті процесу додатку
+SESSIONS: dict[str, dict] = {}
+SESSION_TTL_SECONDS = 60 * 60  # 1 година
 
 
 def fetch_all(query: str, params: tuple = ()) -> list[sqlite3.Row]:
@@ -28,11 +36,182 @@ def execute(query: str, params: tuple = ()) -> None:
         conn.commit()
 
 
+def _cleanup_expired_sessions() -> None:
+    """Видаляє прострочені сесії з пам'яті."""
+    now = int(time.time())
+    expired_keys = [
+        sid for sid, data in SESSIONS.items()
+        if data.get("expires_at", 0) < now
+    ]
+    for sid in expired_keys:
+        SESSIONS.pop(sid, None)
+
+
+def create_session(user_id: int, login: str) -> str:
+    """
+    Створює сесію для користувача та повертає криптографічно надійний ідентифікатор.
+    """
+    _cleanup_expired_sessions()
+    session_id = secrets.token_urlsafe(32)
+    now = int(time.time())
+    SESSIONS[session_id] = {
+        "user_id": user_id,
+        "login": login,
+        "created_at": now,
+        "expires_at": now + SESSION_TTL_SECONDS,
+    }
+    return session_id
+
+
+def get_session(session_id: str | None) -> dict | None:
+    """Повертає дані сесії або None, якщо її не існує чи вона прострочена."""
+    if not session_id:
+        return None
+    _cleanup_expired_sessions()
+    data = SESSIONS.get(session_id)
+    if data is None:
+        return None
+    now = int(time.time())
+    if data.get("expires_at", 0) < now:
+        SESSIONS.pop(session_id, None)
+        return None
+    # Продовжуємо життя сесії при активності користувача
+    data["expires_at"] = now + SESSION_TTL_SECONDS
+    return data
+
+
+def destroy_session(session_id: str | None) -> None:
+    """Видаляє сесію зі сховища."""
+    if not session_id:
+        return
+    SESSIONS.pop(session_id, None)
+
+
+def login_required(view_func):
+    """
+    Декоратор, що вимагає наявності чинної сесії.
+    Якщо користувач не автентифікований — перенаправляє на сторінку входу.
+    """
+    @wraps(view_func)
+    def wrapped(*args, **kwargs):
+        current = getattr(g, "current_user", None)
+        if not current:
+            return redirect(url_for("login"))
+        return view_func(*args, **kwargs)
+
+    return wrapped
+
+
+def init_db() -> None:
+    """
+    Створює всі необхідні таблиці бази даних, якщо вони ще не існують.
+
+    Створювані таблиці:
+      - student: студенти (id, name)
+      - course: дисципліни (id, title, semester)
+      - points: оцінки (id, id_student, id_course, value)
+      - users: користувачі (id, login, password_hash)
+    """
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.cursor()
+        
+        # Створюємо таблицю студентів
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS student (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL
+            )
+            """
+        )
+        
+        # Створюємо таблицю дисциплін
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS course (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                title TEXT NOT NULL,
+                semester INTEGER NOT NULL
+            )
+            """
+        )
+        
+        # Створюємо таблицю оцінок
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS points (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                id_student INTEGER NOT NULL,
+                id_course INTEGER NOT NULL,
+                value INTEGER NOT NULL,
+                FOREIGN KEY (id_student) REFERENCES student(id),
+                FOREIGN KEY (id_course) REFERENCES course(id)
+            )
+            """
+        )
+        
+        # Створюємо таблицю користувачів
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                login TEXT NOT NULL UNIQUE,
+                password_hash TEXT NOT NULL
+            )
+            """
+        )
+        
+        conn.commit()
+
+
+def create_user(login: str, password: str) -> None:
+    """
+    Створює нового користувача, зберігаючи пароль у вигляді криптографічного хеша.
+    """
+    password_hash = generate_password_hash(password)
+    execute(
+        """
+        INSERT INTO users (login, password_hash)
+        VALUES (?, ?)
+        """,
+        (login, password_hash),
+    )
+
+
+def verify_user_password(login: str, password: str) -> bool:
+    """
+    Перевіряє правильність пароля користувача за логіном.
+    """
+    user = fetch_one("SELECT id, login, password_hash FROM users WHERE login = ?", (login,))
+    if user is None:
+        return False
+    return check_password_hash(user["password_hash"], password)
+
+
+# Ініціалізуємо БД (створюємо таблицю users за потреби)
+init_db()
+
+
 app = Flask(
     __name__,
     template_folder='addition/templates',
     static_folder='addition/static'
 )
+
+
+@app.before_request
+def load_current_user() -> None:
+    """
+    Читає ідентифікатор сесії з cookie та завантажує дані користувача в g.current_user.
+    """
+    session_id = request.cookies.get("session_id")
+    g.current_user = get_session(session_id)
+
+
+@app.context_processor
+def inject_current_user():
+    """Додає інформацію про поточного користувача у контекст шаблонів."""
+    return {"current_user": getattr(g, "current_user", None)}
 
 
 @app.after_request
@@ -44,6 +223,81 @@ def apply_csp(response):
     """
     response.headers["Content-Security-Policy"] = "script-src 'self' 'unsafe-inline'"
     return response
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """
+    Проста форма входу, яка створює серверну сесію в пам'яті та
+    записує ідентифікатор сесії в HttpOnly-cookie.
+    """
+    error: str | None = None
+
+    if request.method == "POST":
+        login_value = request.form.get("login", "").strip()
+        password = request.form.get("password", "")
+
+        user = fetch_one(
+            "SELECT id, login, password_hash FROM users WHERE login = ?",
+            (login_value,),
+        )
+        if not user or not check_password_hash(user["password_hash"], password):
+            error = "Невірний логін або пароль."
+        else:
+            session_id = create_session(user["id"], user["login"])
+            response = redirect(url_for("root_index"))
+            # У cookie зберігаємо лише випадковий ідентифікатор сесії
+            response.set_cookie(
+                "session_id",
+                session_id,
+                max_age=SESSION_TTL_SECONDS,
+                httponly=True,
+                samesite="Lax",
+            )
+            return response
+
+    # Відображаємо форму входу через HTML-шаблон
+    return render_template("login.html.j2", error=error)
+
+
+@app.route("/logout")
+def logout():
+    """
+    Завершує сесію користувача на сервері та видаляє cookie з ідентифікатором сесії.
+    """
+    session_id = request.cookies.get("session_id")
+    destroy_session(session_id)
+    response = redirect(url_for("root_index"))
+    response.delete_cookie("session_id")
+    return response
+
+
+@app.route("/api/session-status")
+def session_status():
+    """
+    Повертає інформацію про поточного користувача (для клієнтського UI).
+    200 + login, якщо сесія чинна, 401 — якщо ні.
+    """
+    current = getattr(g, "current_user", None)
+    if not current:
+        return {"authenticated": False}, 401
+    return {"authenticated": True, "login": current.get("login")}, 200
+
+
+@app.route("/debug/sessions")
+@login_required
+def debug_sessions():
+    """
+    Проста сторінка для перегляду активних сесій у пам'яті.
+    Доступна лише адміністратору (користувач з логіном 'admin').
+    """
+    current = getattr(g, "current_user", None)
+    if not current or current.get("login") != "admin":
+        abort(403)
+
+    # Очищаємо прострочені сесії перед відображенням
+    _cleanup_expired_sessions()
+    return render_template("sessions.html.j2", sessions=SESSIONS)
 
 
 @app.route('/')
@@ -198,6 +452,7 @@ def ratings():
 
 
 @app.route("/add-grade", methods=["GET", "POST"])
+@login_required
 def add_grade():
     # Отримуємо списки студентів та дисциплін для випадних списків
     students = fetch_all(
@@ -324,6 +579,7 @@ def ects_by_student_sem():
 
 
 @app.route("/edit-grades", methods=["GET"])
+@login_required
 def edit_grades_list():
     """Список усіх оцінок з посиланнями на редагування та видалення."""
     marks = fetch_all(
@@ -343,6 +599,7 @@ def edit_grades_list():
 
 
 @app.route("/edit-grade/<int:grade_id>", methods=["GET", "POST"])
+@login_required
 def edit_grade(grade_id: int):
     """Форма редагування існуючої оцінки."""
     grade = fetch_one(
@@ -411,6 +668,7 @@ def edit_grade(grade_id: int):
 
 
 @app.route("/delete-grade/<int:grade_id>", methods=["GET", "POST"])
+@login_required
 def delete_grade(grade_id: int):
     """
     Сторінка видалення оцінки з підтвердженням.

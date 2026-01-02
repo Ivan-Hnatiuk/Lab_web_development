@@ -1,8 +1,6 @@
-document.addEventListener('DOMContentLoaded', () => {
-        bindHandlers();
-    });
-
 function toggleDarkMode() {
-    var element = document.body;
-    element.classList.toggle("dark-mode");
+    const root = document.documentElement;
+    const isDark = root.classList.toggle('dark-mode');
+    // Зберігаємо поточну тему в localStorage
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
 }

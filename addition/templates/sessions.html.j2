@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8">
+    <title>Активні сесії</title>
+</head>
+<body>
+<h1>Активні сесії</h1>
+
+{% if sessions %}
+    <table border="1" cellpadding="4" cellspacing="0">
+        <thead>
+        <tr>
+            <th>Session ID</th>
+            <th>User ID</th>
+            <th>Login</th>
+            <th>Created at (Unix time)</th>
+            <th>Expires at (Unix time)</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for sid, data in sessions.items() %}
+            <tr>
+                <td>{{ sid }}</td>
+                <td>{{ data.user_id }}</td>
+                <td>{{ data.login }}</td>
+                <td>{{ data.created_at }}</td>
+                <td>{{ data.expires_at }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% else %}
+    <p>Немає активних сесій.</p>
+{% endif %}
+
+</body>
+</html>
+
+

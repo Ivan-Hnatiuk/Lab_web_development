@@ -8,9 +8,21 @@
         body { margin: 0; background: #f5f5f5; color: #202020; }
         header { background: #1f4b99; color: #fff; padding: 1.5rem 2rem; }
         header h1 { margin: 0 0 0.5rem 0; font-size: 1.8rem; }
-        nav { display: flex; flex-wrap: wrap; gap: 1rem; }
+        nav { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
         nav a { color: #fff; text-decoration: none; font-weight: 600; }
         nav a:hover { text-decoration: underline; }
+        .logout-btn {
+            margin-left: auto;
+            background: #fff;
+            color: #1f4b99;
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 700;
+        }
+        .logout-btn:hover {
+            background: #eef3ff;
+        }
         main { padding: 2rem; }
         table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: #fff; }
         th, td { border: 1px solid #d5d5d5; padding: 0.6rem 0.8rem; text-align: left; }
@@ -39,6 +51,9 @@
             <a href="{{ url_for('ects_by_subject') }}">ECTS по дисциплінах</a>
             <a href="{{ url_for('ects_by_student_sem') }}">ECTS по студентах/семестрах</a>
             <a href="{{ url_for('edit_grades_list') }}">Редагування/видалення оцінок</a>
+            {% if current_user %}
+                <a class="logout-btn" href="{{ url_for('logout') }}">Вийти ({{ current_user.login }})</a>
+            {% endif %}
         </nav>
     </header>
     <main>

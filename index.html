@@ -2,6 +2,19 @@
 <html lang="uk">
 
 <head>
+  <script>
+    // Встановлюємо тему якомога раніше, щоб уникнути миготіння
+    (function () {
+      try {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+          document.documentElement.classList.add('dark-mode');
+        }
+      } catch (e) {
+        // Якщо localStorage недоступний, просто ігноруємо
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="style.css">
   <script src="script.js"></script>
   <meta charset="UTF-8">
@@ -17,6 +30,9 @@
     <img src="images/moon.png" alt="moon" id="theme-icon-dark">
     <img src="images/sun.png" alt="sun" id="theme-icon-light">
   </button>
+  <a class="logout-floating" id="logout-floating" href="/logout" style="display:none;">Вийти</a>
+  <br>
+  <a class="nav-button" href="/login">Вхід</a>
   <br>
   <a href="https://example.com">Посилання</a>
   <div class="nav-actions">
@@ -132,5 +148,26 @@
       }
     });
   </script>
+<script>
+  // Показуємо кнопку виходу лише якщо є чинна сесія
+  (function () {
+    const logoutBtn = document.getElementById('logout-floating');
+    if (!logoutBtn) return;
+    fetch('/api/session-status', { credentials: 'include' })
+      .then(res => {
+        if (res.ok) return res.json();
+        throw new Error('unauthenticated');
+      })
+      .then(data => {
+        if (data?.authenticated) {
+          logoutBtn.textContent = data.login ? `Вийти (${data.login})` : 'Вийти';
+          logoutBtn.style.display = 'inline-block';
+        }
+      })
+      .catch(() => {
+        logoutBtn.style.display = 'none';
+      });
+  })();
+</script>
 </body>
 </html>

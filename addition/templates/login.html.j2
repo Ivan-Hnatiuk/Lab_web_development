@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8">
+    <title>Вхід</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body class="login-page">
+<div class="back-link-bar">
+    <a href="/">На головну</a>
+</div>
+
+<div class="login-container">
+    <h1>Вхід</h1>
+
+    {% if error %}
+        <p class="login-error">{{ error }}</p>
+    {% endif %}
+
+    <form method="post">
+        <label>
+            Логін:
+            <input name="login" required>
+        </label>
+        <label>
+            Пароль:
+            <input name="password" type="password" required>
+        </label>
+        <button type="submit">Увійти</button>
+    </form>
+</div>
+</body>
+</html>
+
+
